@@ -32,24 +32,25 @@ const envSchema = z.object({
 function loadEnv() {
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
-    // If running during build time (e.g. Next.js route collection or CI),
-    // provide safe placeholders so next build succeeds without requiring production secrets.
-    const isBuild =
+    // If running during build, test, or local dev without configured credentials,
+    // provide safe mock fallbacks so the app boots and renders the UI cleanly.
+    const isBuildOrLocal =
       process.env.NEXT_PHASE === "phase-production-build" ||
       process.env.npm_lifecycle_event === "build" ||
-      process.env.NODE_ENV === "test";
+      process.env.NODE_ENV === "test" ||
+      process.env.NODE_ENV !== "production";
 
-    if (isBuild) {
+    if (isBuildOrLocal) {
       return {
-        PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID || "build-time-placeholder",
-        PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET || "build-time-placeholder",
-        PAYPAL_ENV: "sandbox" as const,
-        INVOICER_NAME: process.env.INVOICER_NAME || "PayPilot",
+        PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID || "sandbox-client-id-placeholder",
+        PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET || "sandbox-secret-placeholder",
+        PAYPAL_ENV: (process.env.PAYPAL_ENV as "sandbox" | "live") || "sandbox",
+        INVOICER_NAME: process.env.INVOICER_NAME || "PayPilot Sandbox Demo",
         INVOICER_EMAIL: process.env.INVOICER_EMAIL || "merchant@paypilot.demo",
-        DEMO_MODE: true,
-        LLM_PROVIDER: process.env.LLM_PROVIDER,
-        LLM_MODEL: process.env.LLM_MODEL,
-        LLM_API_KEY: process.env.LLM_API_KEY,
+        DEMO_MODE: process.env.DEMO_MODE !== "false",
+        LLM_PROVIDER: process.env.LLM_PROVIDER || "google",
+        LLM_MODEL: process.env.LLM_MODEL || "gemini-1.5-flash",
+        LLM_API_KEY: process.env.LLM_API_KEY || "",
       };
     }
 

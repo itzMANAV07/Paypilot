@@ -4,7 +4,7 @@
 
 PayPilot is a chat-first accounts-receivable copilot for freelancers and small businesses, built for the PayPal AI Hackathon. Users type natural-language requests to draft professional USD invoices, monitor cashflow, search their receivables, and chase overdue accounts with tone-adaptive payment reminders. Every single financial operation strictly requires explicit human confirmation before dispatching to the live PayPal Invoicing API.
 
-🔗 **Live Hosted Demo:** `https://paypilot.onrender.com` *(Replace with your live Render URL)*
+🔗 **Live Hosted Demo:** <!-- FILL IN LIVE URL HERE: https://paypilot.onrender.com --> [Pending Deployment - Fill live URL here]
 
 ---
 
@@ -130,7 +130,7 @@ PayPilot communicates with PayPal's sandbox REST APIs adhering strictly to the o
 3. **`POST /v2/invoicing/invoices/{id}/send`** — Dispatches the invoice to the customer's email with notification toggles.
 4. **`GET /v2/invoicing/invoices`** — Paginated retrieval of sandbox invoices with `total_required=true` to build the unified ledger.
 5. **`GET /v2/invoicing/invoices/{id}`** — Fetches full details and payment status for an individual invoice.
-6. **`POST /v2/invoicing/invoices/{id}/remind`** — Sends customer reminders adhering to PayPal's required `notification` payload schema.
+6. **`POST /v2/invoicing/invoices/{id}/remind`** — Sends customer reminders adhering to PayPal's remind payload schema (`subject`, `note`, `send_to_recipient`, `send_to_invoicer`).
 7. **`POST /v2/invoicing/invoices/{id}/payments`** — Records simulated customer payments (`method: "OTHER"`), transitioning unpaid invoices to `PAID`.
 
 ---

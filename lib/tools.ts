@@ -64,6 +64,7 @@ export const listInvoicesTool = tool({
     return {
       count: rows.length,
       rows: rows.map((r) => ({
+        id: r.id,
         invoiceNumber: r.invoiceNumber,
         clientName: r.clientName,
         amount: r.amount,
@@ -95,6 +96,7 @@ export const findOverdueTool = tool({
     return {
       count: rows.length,
       rows: rows.map((r) => ({
+        id: r.id,
         invoiceNumber: r.invoiceNumber,
         clientName: r.clientName,
         amount: r.amount,
@@ -208,12 +210,24 @@ export const draftReminderTool = tool({
   execute: async ({ invoiceId, tone = "friendly" }) => {
     let clientName = "Client";
     let invoiceNumber = invoiceId;
+    let resolvedInvoiceId = invoiceId;
     let amount = "";
     let dueDate = "";
     let daysOverdue = 0;
 
     try {
-      const inv = await paypalGetInvoice(invoiceId);
+      // If the caller passed an invoiceNumber (e.g. "1001") instead of a PayPal
+      // INV2-... ID, resolve it via list lookup first.
+      if (!invoiceId.startsWith("INV2-")) {
+        const all = await paypalListInvoices();
+        const rows = normaliseInvoices(all);
+        const match = rows.find((r) => r.invoiceNumber === invoiceId);
+        if (match) {
+          resolvedInvoiceId = match.id;
+        }
+      }
+
+      const inv = await paypalGetInvoice(resolvedInvoiceId);
       const row = normaliseInvoice(inv);
       clientName = row.clientName;
       invoiceNumber = row.invoiceNumber;
@@ -254,7 +268,7 @@ export const draftReminderTool = tool({
     }
 
     const draft: ReminderDraft = {
-      invoiceId,
+      invoiceId: resolvedInvoiceId,
       subject,
       note,
       tone,

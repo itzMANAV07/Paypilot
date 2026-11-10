@@ -32,15 +32,19 @@ export interface AuditEntry {
 
 let entries: AuditEntry[] = [];
 let loaded = false;
-const LOG_PATH = path.join(process.cwd(), "audit-log.json");
+
+function getLogPath(): string {
+  return process.env.AUDIT_LOG_PATH || path.join(process.cwd(), "audit-log.json");
+}
 
 /** Load any previously persisted entries on first use. */
 function maybeLoad() {
   if (loaded) return;
   loaded = true;
   try {
-    if (fs.existsSync(LOG_PATH)) {
-      const raw = fs.readFileSync(LOG_PATH, "utf8");
+    const logPath = getLogPath();
+    if (fs.existsSync(logPath)) {
+      const raw = fs.readFileSync(logPath, "utf8");
       entries = JSON.parse(raw) as AuditEntry[];
     }
   } catch {
@@ -51,7 +55,7 @@ function maybeLoad() {
 /** Persist the in-memory log to disk (best-effort). */
 function maybePersist() {
   try {
-    fs.writeFileSync(LOG_PATH, JSON.stringify(entries, null, 2), "utf8");
+    fs.writeFileSync(getLogPath(), JSON.stringify(entries, null, 2), "utf8");
   } catch {
     // Best-effort — ignore write errors (e.g. read-only FS on Render free tier)
   }
@@ -87,8 +91,9 @@ export function clearAuditLog(): void {
   loaded = true;
   entries = [];
   try {
-    if (fs.existsSync(LOG_PATH)) {
-      fs.unlinkSync(LOG_PATH);
+    const logPath = getLogPath();
+    if (fs.existsSync(logPath)) {
+      fs.unlinkSync(logPath);
     }
   } catch {
     // Best-effort

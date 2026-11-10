@@ -334,10 +334,10 @@ describe("remindInvoice", () => {
     expect((apiCall[1] as RequestInit).method).toBe("POST");
 
     const body = JSON.parse((apiCall[1] as RequestInit).body as string);
-    expect(body.notification.subject).toBe("Friendly reminder");
-    expect(body.notification.note).toBe("Just checking in!");
-    expect(body.notification.send_to_recipient).toBe(true);
-    expect(body.notification.send_to_invoicer).toBe(false);
+    expect(body.subject).toBe("Friendly reminder");
+    expect(body.note).toBe("Just checking in!");
+    expect(body.send_to_recipient).toBe(true);
+    expect(body.send_to_invoicer).toBe(false);
   });
 
   it("throws PayPalError on 422 (rate limit hit)", async () => {

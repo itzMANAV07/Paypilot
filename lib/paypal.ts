@@ -353,12 +353,10 @@ export async function remindInvoice(
   await paypalFetch<void>(`/v2/invoicing/invoices/${invoiceId}/remind`, {
     method: "POST",
     body: {
-      notification: {
-        send_to_recipient: options.send_to_recipient ?? true,
-        send_to_invoicer: options.send_to_invoicer ?? false,
-        ...(options.subject ? { subject: options.subject } : {}),
-        ...(options.note ? { note: options.note } : {}),
-      },
+      send_to_recipient: options.send_to_recipient ?? true,
+      send_to_invoicer: options.send_to_invoicer ?? false,
+      ...(options.subject ? { subject: options.subject } : {}),
+      ...(options.note ? { note: options.note } : {}),
     },
   });
 }

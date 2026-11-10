@@ -20,12 +20,16 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import type { ColDef, RowClassParams, ICellRendererParams, IRowNode } from "ag-grid-community";
 import type { LedgerRow, GridFilterSpec } from "@/lib/schemas";
 
 // AG Grid CSS — must be imported in a client component
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+
+// Register all community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 // ---------------------------------------------------------------------------
 // StatusChip cell renderer
@@ -449,6 +453,7 @@ export default function InvoiceGrid({
         ) : (
           <AgGridReact<LedgerRow>
             ref={gridRef}
+            theme="legacy"
             rowData={rows}
             columnDefs={COL_DEFS}
             defaultColDef={{
@@ -464,7 +469,6 @@ export default function InvoiceGrid({
             animateRows
             pagination
             paginationPageSize={20}
-            domLayout="autoHeight"
             noRowsOverlayComponent={() => (
               <span className="text-sm text-zinc-400">No invoices found.</span>
             )}

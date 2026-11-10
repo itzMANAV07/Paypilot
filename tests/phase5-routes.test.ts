@@ -7,7 +7,10 @@
  *  - GET /api/audit
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from "vitest";
+import path from "path";
+import os from "os";
+import fs from "fs";
 
 // Mock env
 vi.mock("../lib/env", () => ({
@@ -54,7 +57,24 @@ import { clearAuditLog, getAuditLog } from "../lib/audit";
 import { env } from "../lib/env";
 import { PayPalError } from "../lib/paypal";
 
+const testAuditPath = path.join(os.tmpdir(), `paypilot-test-audit-${Date.now()}.json`);
+
 describe("Phase 5 API Routes", () => {
+  beforeAll(() => {
+    process.env.AUDIT_LOG_PATH = testAuditPath;
+  });
+
+  afterAll(() => {
+    delete process.env.AUDIT_LOG_PATH;
+    try {
+      if (fs.existsSync(testAuditPath)) {
+        fs.unlinkSync(testAuditPath);
+      }
+    } catch {
+      // Best-effort
+    }
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     clearAuditLog();

@@ -130,6 +130,7 @@ describe("lib/tools.ts", () => {
       expect(result.count).toBe(4);
       expect(result.rows).toHaveLength(4);
       expect(result.rows[0].invoiceNumber).toBe("1001");
+      expect(result.rows[0].id).toBe("INV2-001");
     });
 
     it("filters by status", async () => {
@@ -170,7 +171,9 @@ describe("lib/tools.ts", () => {
       // Invoices 1004 (2019) and 1001 (2020) are SENT + past due date
       expect(result.count).toBe(2);
       expect(result.rows[0].invoiceNumber).toBe("1004"); // older due date = more days overdue
+      expect(result.rows[0].id).toBe("INV2-004");
       expect(result.rows[1].invoiceNumber).toBe("1001");
+      expect(result.rows[1].id).toBe("INV2-001");
       expect(result.rows[0].daysOverdue).toBeGreaterThan(result.rows[1].daysOverdue);
     });
   });
@@ -245,6 +248,17 @@ describe("lib/tools.ts", () => {
       expect(result.draft?.tone).toBe("firm");
       expect(result.draft?.subject).toContain("URGENT / OVERDUE");
       expect(result.draft?.note).toContain("past due");
+    });
+
+    it("resolves an invoiceNumber to an INV2-... id", async () => {
+      const result = await draftReminderTool.execute!(
+        { invoiceId: "1001", tone: "friendly" },
+        mockOpts
+      );
+      expect(result.ok).toBe(true);
+      expect(result.draft?.invoiceId).toBe("INV2-001");
+      expect(result.draft?.subject).toContain("Invoice #1001");
+      expect(result.draft?.note).toContain("Rahul Sharma");
     });
 
     it("handles non-existent invoice gracefully with fallback text", async () => {
